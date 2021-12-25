@@ -108,13 +108,10 @@ namespace FileCompare
             {
                 if (employee.IsChief)
                     if (max < employee.Salary)
-                    {
                         max = employee.Salary;
-                        work = employee.Work;
-                    }
             }
 
-            Console.WriteLine($"Максимальная зарплата среди руководителей: {max}, {work}");
+            Console.WriteLine($"Максимальная зарплата среди руководителей: {max} {(employees.First(x => x.Salary == max)).Work}");
         }
     }
 }
