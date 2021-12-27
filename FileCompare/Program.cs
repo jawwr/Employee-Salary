@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Channels;
 
 namespace FileCompare
 {
@@ -15,10 +14,10 @@ namespace FileCompare
     }
     class Program
     {
-        private const int NameID = 0;
-        private const int WorkID = 1;
-        private const int SalaryID = 2;
-        private const int ChiefID = 3;
+        private const int NameId = 0;
+        private const int WorkId = 1;
+        private const int SalaryId = 2;
+        private const int ChiefId = 3;
         
         static void Main(string[] args)
         {
@@ -27,7 +26,6 @@ namespace FileCompare
             AverageSalary(employees);
             MaxSalaryChief(employees);
         }
-
         static List<Employee> ReadFile()
         {
             string[] file = File.ReadAllLines("File1.txt");
@@ -38,44 +36,38 @@ namespace FileCompare
                 string[] lineSplit = line.Split(';');
                 if (lineSplit.Length == 4)
                 {
-                    newEmployee.Name = lineSplit[NameID];
-                    newEmployee.Work = lineSplit[WorkID];
-                    newEmployee.Salary = int.Parse(lineSplit[SalaryID]);
-                    newEmployee.IsChief = bool.Parse(lineSplit[ChiefID]);
+                    newEmployee.Name = lineSplit[NameId];
+                    newEmployee.Work = lineSplit[WorkId];
+                    newEmployee.Salary = int.Parse(lineSplit[SalaryId]);
+                    newEmployee.IsChief = bool.Parse(lineSplit[ChiefId]);
                 }
                 else
                 {
-                    newEmployee.Name = lineSplit[NameID];
-                    newEmployee.Work = lineSplit[WorkID];
-                    newEmployee.Salary = int.Parse(lineSplit[SalaryID]);
+                    newEmployee.Name = lineSplit[NameId];
+                    newEmployee.Work = lineSplit[WorkId];
+                    newEmployee.Salary = int.Parse(lineSplit[SalaryId]);
                 }
                 employees.Add(newEmployee);
             }
 
             return employees;
         }
-
         static void CheckChiefCount(List<Employee> employees)
         {
+            
             List<string> works = new List<string>();
             for (int i = 0; i < employees.Count; i++)
             {
-                int countChief = 0;
                 string work = employees[i].Work;
                 if (!works.Contains(work))
                 {
                     works.Add(work);
-                    for (int j = 0; j < employees.Count; j++)
-                    {
-                        if (work == employees[j].Work && employees[j].IsChief)
-                            countChief++;
-                    }
-                    if (countChief > 2 || countChief == 0)
-                        throw new Exception("Клдичество начальников не верно");
+                    var countChief = employees.Where(x => x.IsChief && x.Work == work);
+                    if (countChief.Count() > 2 || countChief.Count() == 0)
+                        throw new Exception("Количество начальников не верно");
                 }
             }
         }
-
         static void AverageSalary(List<Employee> employees)
         {
             List<string> works = new List<string>();
@@ -84,34 +76,17 @@ namespace FileCompare
                 string work = employees[i].Work;
                 if (!works.Contains(work))
                 {
-                    int count = 0;
                     works.Add(work);
-                    int sum = 0;
-                    for (int j = 0; j < employees.Count; j++)
-                    {
-                        if (work == employees[j].Work && !employees[j].IsChief)
-                        {
-                            sum += employees[j].Salary;
-                            count++;
-                        }
-                    }
+                    var employeeOnWork = employees.Where(x => !x.IsChief && x.Work == work);
+                    int sum = employeeOnWork.Sum(x => x.Salary);
+                    int count = employeeOnWork.Count();
                     Console.WriteLine($"{work}, средняя зарплата: {sum / count}");
                 }
             }
         }
-
         static void MaxSalaryChief(List<Employee> employees)
         {
-            int max = 0;
-            string work = null;
-            foreach (var employee in employees)
-            {
-                if (employee.IsChief)
-                    if (max < employee.Salary)
-                        max = employee.Salary;
-            }
-
-            Console.WriteLine($"Максимальная зарплата среди руководителей: {max} {(employees.First(x => x.Salary == max)).Work}");
+            Console.WriteLine($"Максимальная зарплата среди руководителей: {employees.Max(x => x.Salary)}, {employees.Find(x => x.Salary == employees.Max(x => x.Salary)).Work}");
         }
     }
 }
