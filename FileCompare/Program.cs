@@ -7,23 +7,18 @@ namespace FileCompare
 {
     class Employee
     {
-        private readonly string _name;
-        private readonly string _work;
-        private readonly bool _isChief;
-        private readonly int _salary;
+        public string Name { get; }
+        public string Work { get; }
+        public bool IsChief { get; }
+        public int Salary { get; }
 
         public Employee(string name, string work, int salary, bool isChief = false)
         {
-            _name = name;
-            _work = work;
-            _salary = salary;
-            _isChief = isChief;
+            Name = name;
+            Work = work;
+            Salary = salary;
+            IsChief = isChief;
         }
-
-        public string GetName() => _name;
-        public string GetWork() => _work;
-        public int GetSalary() => _salary;
-        public bool GetIsChief() => _isChief;
     }
     class Program
     {
@@ -66,11 +61,11 @@ namespace FileCompare
             List<string> works = new List<string>();
             for (int i = 0; i < employees.Count; i++)
             {
-                string work = employees[i].GetWork();
+                string work = employees[i].Work;
                 if (!works.Contains(work))
                 {
                     works.Add(work);
-                    var countChief = employees.Where(x => x.GetIsChief() && x.GetWork() == work);
+                    var countChief = employees.Where(x => x.IsChief && x.Work == work);
                     if (countChief.Count() > 2 || countChief.Count() == 0)
                         throw new Exception("Количество начальников не верно");
                 }
@@ -81,12 +76,12 @@ namespace FileCompare
             List<string> works = new List<string>();
             for (int i = 0; i < employees.Count; i++)
             {
-                string work = employees[i].GetWork();
+                string work = employees[i].Work;
                 if (!works.Contains(work))
                 {
                     works.Add(work);
-                    var employeeOnWork = employees.Where(x => !x.GetIsChief() && x.GetWork() == work);
-                    int sum = employeeOnWork.Sum(x => x.GetSalary());
+                    var employeeOnWork = employees.Where(x => !x.IsChief && x.Work == work);
+                    int sum = employeeOnWork.Sum(x => x.Salary);
                     int count = employeeOnWork.Count();
                     Console.WriteLine($"{work}, средняя зарплата: {sum / count}");
                 }
@@ -94,8 +89,8 @@ namespace FileCompare
         }
         static void MaxSalaryChief(List<Employee> employees)
         {
-            var max = employees.Max(x => x.GetSalary());
-            Console.WriteLine($"Максимальная зарплата среди руководителей: {max}, {employees.Find(x => x.GetSalary() == max).GetWork()}");
+            var max = employees.Max(x => x.Salary);
+            Console.WriteLine($"Максимальная зарплата среди руководителей: {max}, {employees.Find(x => x.Salary == max).Work}");
         }
     }
 }
