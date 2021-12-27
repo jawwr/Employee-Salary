@@ -7,10 +7,23 @@ namespace FileCompare
 {
     class Employee
     {
-        public string Name { get; set; }
-        public string Work { get; set; }
-        public bool IsChief { get; set; }
-        public int Salary { get; set; }
+        private readonly string _name;
+        private readonly string _work;
+        private readonly bool _isChief;
+        private readonly int _salary;
+
+        public Employee(string name, string work, int salary, bool isChief = false)
+        {
+            _name = name;
+            _work = work;
+            _salary = salary;
+            _isChief = isChief;
+        }
+
+        public string GetName() => _name;
+        public string GetWork() => _work;
+        public int GetSalary() => _salary;
+        public bool GetIsChief() => _isChief;
     }
     class Program
     {
@@ -32,20 +45,15 @@ namespace FileCompare
             List<Employee> employees = new List<Employee>();
             foreach (var line in file)
             {
-                Employee newEmployee = new Employee();
+                Employee newEmployee;
                 string[] lineSplit = line.Split(';');
                 if (lineSplit.Length == 4)
                 {
-                    newEmployee.Name = lineSplit[NameId];
-                    newEmployee.Work = lineSplit[WorkId];
-                    newEmployee.Salary = int.Parse(lineSplit[SalaryId]);
-                    newEmployee.IsChief = bool.Parse(lineSplit[ChiefId]);
+                    newEmployee = new Employee(lineSplit[NameId],lineSplit[WorkId],int.Parse(lineSplit[SalaryId]),bool.Parse(lineSplit[ChiefId]));
                 }
                 else
                 {
-                    newEmployee.Name = lineSplit[NameId];
-                    newEmployee.Work = lineSplit[WorkId];
-                    newEmployee.Salary = int.Parse(lineSplit[SalaryId]);
+                    newEmployee = new Employee(lineSplit[NameId], lineSplit[WorkId], int.Parse(lineSplit[SalaryId]));
                 }
                 employees.Add(newEmployee);
             }
@@ -58,11 +66,11 @@ namespace FileCompare
             List<string> works = new List<string>();
             for (int i = 0; i < employees.Count; i++)
             {
-                string work = employees[i].Work;
+                string work = employees[i].GetWork();
                 if (!works.Contains(work))
                 {
                     works.Add(work);
-                    var countChief = employees.Where(x => x.IsChief && x.Work == work);
+                    var countChief = employees.Where(x => x.GetIsChief() && x.GetWork() == work);
                     if (countChief.Count() > 2 || countChief.Count() == 0)
                         throw new Exception("Количество начальников не верно");
                 }
@@ -73,12 +81,12 @@ namespace FileCompare
             List<string> works = new List<string>();
             for (int i = 0; i < employees.Count; i++)
             {
-                string work = employees[i].Work;
+                string work = employees[i].GetWork();
                 if (!works.Contains(work))
                 {
                     works.Add(work);
-                    var employeeOnWork = employees.Where(x => !x.IsChief && x.Work == work);
-                    int sum = employeeOnWork.Sum(x => x.Salary);
+                    var employeeOnWork = employees.Where(x => !x.GetIsChief() && x.GetWork() == work);
+                    int sum = employeeOnWork.Sum(x => x.GetSalary());
                     int count = employeeOnWork.Count();
                     Console.WriteLine($"{work}, средняя зарплата: {sum / count}");
                 }
@@ -86,7 +94,8 @@ namespace FileCompare
         }
         static void MaxSalaryChief(List<Employee> employees)
         {
-            Console.WriteLine($"Максимальная зарплата среди руководителей: {employees.Max(x => x.Salary)}, {employees.Find(x => x.Salary == employees.Max(x => x.Salary)).Work}");
+            var max = employees.Max(x => x.GetSalary());
+            Console.WriteLine($"Максимальная зарплата среди руководителей: {max}, {employees.Find(x => x.GetSalary() == max).GetWork()}");
         }
     }
 }
